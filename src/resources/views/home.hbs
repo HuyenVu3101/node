@@ -1,1 +1,21 @@
-<header>Home</header>
+
+<div class="mt-6">
+    <div class="row">
+
+        {{#each populars}}
+        <div class="col-4">
+            <div class="card mt-3" style="width: 18rem;">
+                <img src="{{this.itemImg}}" class="card-img-top" alt="{{this.itemImg}}">
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <p class="card-text">{{this.itemTitle}}</p>
+                    <div class="d-flex justify-content-between">
+                        <a href="/detail/{{this.id}}" class="btn btn-primary">Detail</a>
+                        <span>{{this.itemPrice}}{{this.currency}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
