@@ -10,7 +10,7 @@
                     <h5 class="card-title">{{this.name}}</h5>
                     <p class="card-text">{{this.itemTitle}}</p>
                     <div class="d-flex justify-content-between">
-                        <a href="/detail/{{this.id}}" class="btn btn-primary">Detail</a>
+                        <a href="/product/{{ternary this.slug this.name}}" class="btn btn-primary">Detail</a>
                         <span>{{this.itemPrice}}{{this.currency}}</span>
                     </div>
                 </div>

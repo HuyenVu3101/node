@@ -1,14 +1,36 @@
 const Popular = require('../models/popular')
 const { cloneDeep } = require('lodash')
+const { multipleObject, simpleObject} = require('../utils/mongoose')
 
 class ProductController{
 
-  // [GET] /detail/create
+  // [GET] /product/create
   create(req, res) {
     res.render('product/create');
   }
 
-  // [POST] /detail/store
+  // [GET] /product/update
+  list(req, res, next) {
+    Popular.find({})
+    .then( populars => res.render('product/list', { populars: multipleObject(populars) }))
+    .catch(next)
+  }
+
+// [GET] /product/:id/edit
+  edit(req, res, next) {
+    Popular.findById(req.params._id)
+        .then( popular => res.render('product/edit', {popular: simpleObject(popular)}) )
+        .catch(next)
+  }
+
+  // [PUT] /product/:id/update
+  update(req, res, next) {
+    Popular.findByIdAndUpdate(req.params._id, req.body)
+        .then(() => res.redirect('/product/list'))
+        .catch(next)
+  }
+
+  // [POST] /product/store
   store(req, res) {
     const _product = cloneDeep(req.body)
     _product.currency = "₫"
@@ -25,7 +47,9 @@ class ProductController{
 
   // [GET] /detail/:id
   detail(req, res) {
-    res.send('product/detail');
+    // Popular.findOne()
+    // .then((err, docs))
+    res.render('product/detail');
   }
 
 }

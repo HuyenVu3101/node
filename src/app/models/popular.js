@@ -8,13 +8,14 @@ mongoose.plugin(slug)
 const popular = new Schema(
     {
       id: String,
+      name: String,
       itemImg: String,
       itemTitle: { type: String, required: true },
       itemId: Number,
       itemPrice: String,
       currency: String,
       videoId: String,
-      slug: { type:String, slug: 'id', unique: true }
+      slug: { type: String, slug: 'name', unique: true }
     }, {
       timestamps: true
     }
