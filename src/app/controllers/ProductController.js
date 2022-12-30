@@ -1,6 +1,6 @@
 const Popular = require('../models/popular')
 const { cloneDeep } = require('lodash')
-const { multipleObject, simpleObject} = require('../utils/mongoose')
+const { multipleObject, simpleObject } = require('../utils/mongoose')
 
 class ProductController{
 
@@ -28,6 +28,13 @@ class ProductController{
     Popular.findByIdAndUpdate(req.params._id, req.body)
         .then(() => res.redirect('/product/list'))
         .catch(next)
+  }
+
+  // [PUT] /product/:id/delete
+  destroy(req, res, next) {
+    Popular.findByIdAndDelete(req.params._id, req.body)
+    .then(() => res.redirect('back'))
+    .catch(next)
   }
 
   // [POST] /product/store

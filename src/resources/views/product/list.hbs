@@ -1,25 +1,71 @@
 <div class="mt-5">
     <table class="table table-bordered">
         <thead>
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">Name</th>
-                <th scope="col">Created At</th>
-                <th scope="col">Updated At</th>
-                <th scope="col" colspan="2"> Actions</th>
-            </tr>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Name</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Updated At</th>
+            <th scope="col" colspan="2"> Actions</th>
+        </tr>
         </thead>
         <tbody>
-            {{#each populars}}
-                <tr>
-                    <th scope="row">{{index @index}}</th>
-                    <td>{{this.name}}</td>
-                    <td>{{this.createdAt}}</td>
-                    <td>{{this.updatedAt}}</td>
-                    <td><a href="{{this._id}}/edit">Edit</a></td>
-                    <td><a href="{{this._id}}/delete">Delete</a></td>
-                </tr>
-            {{/each}}
+        {{#each populars}}
+            <tr>
+                <th scope="row">{{index @index}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>{{this.updatedAt}}</td>
+                <td><a href="{{this._id}}/edit">Edit</a></td>
+                <td><a href="" data-id="{{this._id}}" data-bs-toggle="modal"
+                       data-bs-target="#product-modal">Delete</a></td>
+            </tr>
+        {{/each}}
         </tbody>
     </table>
+
+    <!--     Modal            -->
+    <div class="modal fade" id="product-modal" tabindex="-1" aria-labelledby="modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modal-label">Delete</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="btn-delete" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!--Delete form-->
+<form method="POST" name="hidden_delete-form"></form>
+
+<script>
+    const productModal = document.getElementById('product-modal')
+    const btnDelete = document.getElementById('btn-delete')
+    const deleteForm = document.forms['hidden_delete-form']
+    let id;
+
+    const modalHandle = () => {
+        const button = event.relatedTarget
+        id = button.getAttribute('data-id')
+    }
+
+    const handleDelete = () => {
+        deleteForm.action = `/product/${id}/delete?_method=DELETE`
+        deleteForm.submit()
+    }
+
+    productModal.addEventListener('show.bs.modal', modalHandle)
+    btnDelete.addEventListener('click', handleDelete)
+    // document.addEventListener('DOMContentLoaded', () => {
+    //
+    // })
+</script>
