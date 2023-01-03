@@ -1,13 +1,12 @@
 const mongoose = require('mongoose')
-
+const mongooseDelete = require('mongoose-delete');
 const Schema = mongoose.Schema;
 const slug = require('mongoose-slug-generator')
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
-mongoose.plugin(slug)
-
-const popular = new Schema(
+const popularSchema = new Schema(
     {
-      id: String,
+      _id: Number,
       name: String,
       itemImg: String,
       itemTitle: { type: String, required: true },
@@ -15,10 +14,27 @@ const popular = new Schema(
       itemPrice: String,
       currency: String,
       videoId: String,
-      slug: { type: String, slug: 'name', unique: true }
+      slug: { type: String, slug: 'name', unique: true },
+      deletedAt: Date,
+      deleted: Boolean
     }, {
+      _id: false,
       timestamps: true
     }
 );
 
-module.exports = mongoose.model('popular', popular)
+popularSchema.plugin(AutoIncrement)
+
+// Custom query helper
+popularSchema.query.sortable = function(req){
+  const isValidType = ['asc', 'desc'].includes(req.query.type)
+  if(req.query.hasOwnProperty('_sort')) {
+    return this.sort({ [req.query.column] : isValidType ? req.query.type : 'desc'})
+  }
+  return this
+}
+
+mongoose.plugin(slug)
+popularSchema.plugin(mongooseDelete, { overrideMethods: 'all', deletedAt: true, deleted : true  })
+
+module.exports = mongoose.model('popular', popularSchema)
