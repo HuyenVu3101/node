@@ -1,71 +1,133 @@
-<div class="mt-5">
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th scope="col"></th>
-            <th scope="col">Name</th>
-            <th scope="col">Created At</th>
-            <th scope="col">Updated At</th>
-            <th scope="col" colspan="2"> Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each populars}}
+<form  method="POST" action="/product/handle-actions">
+    <div class="mt-5 d-flex">
+        <div>List Product</div>
+        <a href="/product/trash" class="ms-auto">Trash ({{deletedCount}})</a>
+    </div>
+        {{#if deletedCount}}
+            <div>------------------------</div>
+        {{/if}}
+    <div class="d-flex mt-4">
+        <select class="form-select w-25 me-4" aria-label="Default select example" name="action" required>
+            <option selected value="" >--- Actions ---</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="submit" class="btn btn-primary submit-action" disabled>Submit</button>
+    </div>
+    <div class="mt-5">
+        <table class="table table-bordered">
+            <thead>
             <tr>
-                <th scope="row">{{index @index}}</th>
-                <td>{{this.name}}</td>
-                <td>{{this.createdAt}}</td>
-                <td>{{this.updatedAt}}</td>
-                <td><a href="{{this._id}}/edit">Edit</a></td>
-                <td><a href="" data-id="{{this._id}}" data-bs-toggle="modal"
-                       data-bs-target="#product-modal">Delete</a></td>
+                <th scope="col"></th>
+                <th scope="col"><input type="checkbox" class="form-check-input" id="cb-all"></th>
+                <th scope="col">
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        Name
+                        {{{sortable 'name' _sort}}}
+                    </div></th>
+                <th scope="col" class="d-flex">
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        Create At
+                        {{{sortable 'createAt' _sort}}}
+                    </div>
+                </th>
+                <th scope="col" class="justify-content-between">
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        Updated At
+                        {{{sortable 'updateAt' _sort}}}
+                    </div>
+                </th>
+                <th scope="col" colspan="2" class="text-center"> Actions</th>
             </tr>
-        {{/each}}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {{#each populars}}
+                <tr>
+                    <th scope="row">{{index @index}}</th>
+                    <th scope="row"><input type="checkbox" class="form-check-input" value="{{_id}}" name="cbIds[]"></th>
+                    <td>{{name}}</td>
+                    <td>{{createdAt}}</td>
+                    <td>{{updatedAt}}</td>
+                    <td><a href="{{_id}}/edit">Edit</a></td>
+                    <td><a href="" data-id="{{_id}}" data-bs-toggle="modal"
+                           data-bs-target="#product-modal">Delete</a></td>
+                </tr>
+            {{else}}
+                <tr>
+                    <td colspan="5">
+                        Empty.
+                        <a href="/product/create"> Create Product</a>
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
 
-    <!--     Modal            -->
-    <div class="modal fade" id="product-modal" tabindex="-1" aria-labelledby="modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modal-label">Delete</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="btn-delete" class="btn btn-danger">Delete</button>
+        <!--     Modal      -->
+        <div class="modal fade" id="product-modal" tabindex="-1" aria-labelledby="modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal-label">Delete</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="btn-delete" class="btn btn-danger">Delete</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
+</form>
 <!--Delete form-->
 <form method="POST" name="hidden_delete-form"></form>
 
 <script>
-    const productModal = document.getElementById('product-modal')
-    const btnDelete = document.getElementById('btn-delete')
-    const deleteForm = document.forms['hidden_delete-form']
-    let id;
+    document.addEventListener('DOMContentLoaded', () => {
+        const elemCbAll = $('#cb-all')
+        const elemCb = $('input[name="cbIds[]"]')
+        const subActionBtn = $('.submit-action')
+        let id;
 
-    const modalHandle = () => {
-        const button = event.relatedTarget
-        id = button.getAttribute('data-id')
-    }
+        const handleModal = (event) => {
+            id = $(event.relatedTarget).data('id')
+        }
 
-    const handleDelete = () => {
-        deleteForm.action = `/product/${id}/delete?_method=DELETE`
-        deleteForm.submit()
-    }
+        const handleDelete = () => {
+            const deleteForm = $('form[name="hidden_delete-form"]')
+            deleteForm.attr('action', `/product/${ id }/delete?_method=DELETE`)
+            deleteForm.submit()
+        }
 
-    productModal.addEventListener('show.bs.modal', modalHandle)
-    btnDelete.addEventListener('click', handleDelete)
-    // document.addEventListener('DOMContentLoaded', () => {
-    //
-    // })
+        const handleSubAction = (e) => {
+            // if(!subActionBtn.prop('disabled')){
+            //   e.preventDefault()
+            // }
+        }
+        const isDisSubBtn = (bool) => { subActionBtn.prop('disabled', bool) }
+
+        function handleChangeCbAll() {
+            const isChecked = $(this).prop('checked')
+            elemCb.prop('checked', isChecked)
+            isDisSubBtn(!isChecked)
+        }
+
+
+        function handleChangeCb() {
+          const checkedElemCb = $('input[name="cbIds[]"]:checked')
+            const isCheckedAll = elemCb.length === checkedElemCb.length
+            elemCbAll.prop('checked',isCheckedAll)
+            console.log(!checkedElemCb.length)
+            isDisSubBtn(!checkedElemCb.length)
+        }
+
+        $('#product-modal').on('show.bs.modal', handleModal)
+        $('#btn-delete').click(handleDelete)
+        // subActionBtn.click(handleSubAction)
+        elemCbAll.change(handleChangeCbAll)
+        elemCb.change(handleChangeCb)
+    })
 </script>

@@ -1,0 +1,92 @@
+<div class="mt-5 d-flex">
+    <div>Trash</div>
+    <a href="/product/list" class="ms-auto">List ({{countDocuments}})</a>
+</div>
+<div class="mt-5">
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Name</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Updated At</th>
+            <th scope="col" colspan="2" class="text-center"> Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each populars}}
+            <tr>
+                <th scope="row">{{index @index}}</th>
+                <td>{{name}}</td>
+                <td>{{createdAt}}</td>
+                <td>{{updatedAt}}</td>
+                <td><a href="" class="restore-btn" data-id="{{_id}}">Restore</a></td>
+                <td><a href="" data-id="{{_id}}" data-bs-toggle="modal"
+                       data-bs-target="#product-modal">Force Delete</a></td>
+            </tr>
+        {{else}}
+            <tr>
+                <td colspan="5">
+                    Trash Empty.
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+
+    <!--     Modal      -->
+    <div class="modal fade" id="product-modal" tabindex="-1" aria-labelledby="modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modal-label">Delete Force</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">KO</button>
+                    <button type="button" id="btn-delete" class="btn btn-danger force-delete-btn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Delete form-->
+<form method="POST" name="hidden_delete-form"></form>
+
+<!--Restore form-->
+<form method="POST" name="hidden_restore-form"></form>
+
+<!--Force Destroy form-->
+<form method="POST" name="hidden_force-delete-form"></form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let id;
+
+        const handleModal = (event) => {
+            id = $(event.relatedTarget).data('id')
+        }
+
+        const handleForceDelete = () => {
+            const forceDeleteForm = document.forms['hidden_force-delete-form']
+            forceDeleteForm.action = `/product/${ id }/force-delete?_method=DELETE`
+            forceDeleteForm.submit()
+        }
+
+        function handleRestore(e) {
+            const restoreForm = document.forms['hidden_restore-form']
+            const id = $(this).data('id')
+            e.preventDefault()
+            restoreForm.action = `/product/${ id }/restore?_method=PATCH`
+            restoreForm.submit()
+        }
+
+        $('.restore-btn').click(handleRestore)
+        $('#product-modal').on('show.bs.modal', handleModal)
+        $('.force-delete-btn').click(handleForceDelete)
+    })
+</script>
